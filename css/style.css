@@ -68,6 +68,10 @@ body {
   display: block;
 }
 
+.no-curtains.image-5 .multi-textures img:nth-child(6) {
+  display: block;
+}
+
 .nav {
   display: flex;
   justify-content: space-between;
