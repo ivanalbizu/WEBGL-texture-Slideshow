@@ -1,6 +1,6 @@
 import { Curtains, Plane } from 'curtainsjs';
-import fragment from './shaders/fragment.glsl'
-import vertex from './shaders/vertex.glsl'
+import fragment from './shaders/fragment-02.glsl'
+import vertex from './shaders/vertex-02.glsl'
 
 class WebglSlides {
 	constructor(set) {
@@ -72,13 +72,15 @@ class WebglSlides {
 
 	update() {
 		this.multiTexturesPlane.onRender(() => {
-			if (this.slidesState.isChanging) {
-				this.slidesState.transitionTimer += (90 - this.slidesState.transitionTimer) * 0.04;
+            if (this.slidesState.isChanging) {
+                // use damping to smoothen transition
+                this.slidesState.transitionTimer = (1 - 0.05) * this.slidesState.transitionTimer + 0.05 * 60;
 
-				if (this.slidesState.transitionTimer >= 88.5 && this.slidesState.transitionTimer !== 90) {
-					this.slidesState.transitionTimer = 90;
-				}
-			}
+                // transition is over, pause previous video
+                if(this.slidesState.transitionTimer >= 59 && this.slidesState.transitionTimer !== 60) {
+                    this.slidesState.transitionTimer = 60;
+                }
+            }
 
 			this.multiTexturesPlane.uniforms.transitionTimer.value = this.slidesState.transitionTimer;
 		});

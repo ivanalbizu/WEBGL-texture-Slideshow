@@ -21,7 +21,7 @@ body {
   grid-template-rows: 1fr;
   grid-gap: 0;
 }
-#canvas {
+.canvas {
 	height: 100vh;
 	width: 100vw;
 	z-index: 10;
