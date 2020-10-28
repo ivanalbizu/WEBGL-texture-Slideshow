@@ -96,3 +96,74 @@ body {
 .btn svg path {
   pointer-events: none;
 }
+
+.open-modal {
+  position: fixed;
+  top: 4px;
+  right: 18px;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 18;
+}
+
+.open-modal button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.open-modal .js-close-modal {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  right: 0;
+  width: 300px;
+  top: 0;
+  bottom: 0;
+  z-index: 17;
+  overflow-y: auto;
+  transform: translateX(300px);
+  transition: transform .3s ease-in-out;
+}
+
+.modal img {
+  max-width: 100%;
+  z-index: 19;
+}
+
+.modal__content {
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 2.5em 1.5em;
+}
+
+.modal__content img {
+  border: 2px dashed #fff;
+}
+
+.modal__content img:not(:last-of-type) {
+  margin-bottom: 2em;
+}
+
+.modal__content img.active {
+  border-style: solid;
+}
+
+.modal-active .open-modal .js-close-modal {
+  display: flex;
+}
+
+.modal-active .open-modal .js-open-modal {
+  display: none;
+}
+
+.modal-active .modal {
+  transform: translateX(0px);
+  transition: transform .3s ease-in-out;
+}

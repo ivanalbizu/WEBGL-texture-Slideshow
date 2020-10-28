@@ -11,7 +11,7 @@ class WebglSlides {
 		this.slidesState = {
 			activeTextureIndex: 1,
 			nextTextureIndex: null,
-			maxTextures: document.querySelectorAll("img").length - 1, // -1 to displacement
+			maxTextures: set.planeElement.querySelectorAll("img").length - 1, // -1 to displacement
 			navs: set.navs,
 
 			isChanging: false,
@@ -152,6 +152,10 @@ class WebglSlides {
 		this.curtains.restoreContext();
 	}
 
+	removePlanes() {
+		this.curtains.dispose();
+	}
+
 }
 
 window.addEventListener("load", () => {
@@ -159,9 +163,35 @@ window.addEventListener("load", () => {
 	const canvas = wrapper.querySelector('.canvas')
 	const planeElement = wrapper.querySelector('.multi-textures')
 	const navs = wrapper.querySelectorAll('[data-goto]')
-	const slide = new WebglSlides({
+	let slide = new WebglSlides({
 		canvas,
 		planeElement,
 		navs
+	})
+
+	document.querySelector('.js-open-modal').addEventListener('click', () => {
+    document.body.classList.add('modal-active')
+  })
+  document.querySelector('.js-close-modal').addEventListener('click', () => {
+    document.body.classList.remove('modal-active')
+	})
+
+	const settings = document.querySelectorAll('[data-setting]');
+	settings.forEach(setting => {
+		setting.addEventListener('click', event => {
+			const target = event.target;
+			const path = target.getAttribute('src')
+			settings.forEach(setting => setting.classList.remove('active'))
+			target.classList.add('active')
+			console.log('path :>> ', path);
+			document.querySelector('[data-sampler]').src = path
+	
+			slide.removePlanes()
+			slide = new WebglSlides({
+				canvas,
+				planeElement,
+				navs
+			})
+		})
 	})
 });
