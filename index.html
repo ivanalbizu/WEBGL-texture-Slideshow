@@ -12,13 +12,13 @@
   <main class="wrapper">
     <div class="canvas"></div>
     <section class="slides multi-textures">
-      <img src="./src/img/displacement4.jpg" data-sampler="displacement" />
-      <img src="./src/img/city/amsterdam.jpg" />
-      <img src="./src/img/city/bilbao.jpg" />
-      <img src="./src/img/city/golden-gate-bridge.jpg" />
-      <img src="./src/img/city/valencia.jpg" />
-      <img src="./src/img/city/water.jpg" />
-      <img src="./src/img/city/peine.jpg" />
+      <img src="./src/img/displacement4.jpg" data-sampler="displacement">
+      <img src="./src/img/city/amsterdam.jpg">
+      <img src="./src/img/city/bilbao.jpg">
+      <img src="./src/img/city/golden-gate-bridge.jpg">
+      <img src="./src/img/city/valencia.jpg">
+      <img src="./src/img/city/water.jpg">
+      <img src="./src/img/city/peine.jpg">
       <nav class="nav">
         <button class="btn" data-goto="prev" type="button">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H6M12 5l-7 7 7 7"/></svg>
@@ -42,18 +42,76 @@
   <div class="modal">
     <div class="modal__content">
       <img src="./src/img/displacement4.jpg" data-setting class="active" alt="">
-      <img src="./src/img/displacement.jpg" data-setting alt="">      
-      <img src="./src/img/displacement1.jpg" data-setting alt="">      
-      <img src="./src/img/displacement2.jpg" data-setting alt="">      
-      <img src="./src/img/displacement3.png" data-setting alt="">      
-      <img src="./src/img/displacement5.png" data-setting alt="">      
-      <img src="./src/img/displacement6.jpg" data-setting alt="">      
-      <img src="./src/img/displacement7.jpg" data-setting alt="">      
-      <img src="./src/img/displacement8.jpg" data-setting alt="">      
-      <img src="./src/img/displacement9.jpg" data-setting alt="">      
-      <img src="./src/img/displacement10.jpg" data-setting alt="">      
-      <img src="./src/img/displacement11.jpg" data-setting alt="">      
+      <img src="./src/img/displacement.jpg" data-setting alt="">
+      <img src="./src/img/displacement1.jpg" data-setting alt="">
+      <img src="./src/img/displacement2.jpg" data-setting alt="">
+      <img src="./src/img/displacement3.png" data-setting alt="">
+      <img src="./src/img/displacement5.png" data-setting alt="">
+      <img src="./src/img/displacement6.jpg" data-setting alt="">
+      <img src="./src/img/displacement7.jpg" data-setting alt="">
+      <img src="./src/img/displacement8.jpg" data-setting alt="">
+      <img src="./src/img/displacement9.jpg" data-setting alt="">
+      <img src="./src/img/displacement10.jpg" data-setting alt="">
+      <img src="./src/img/displacement11.jpg" data-setting alt="">
     </div>
   </div>
+
+  <script id="vs-not-load" type="x-shader/x-vertex">
+    precision mediump float;
+
+    attribute vec3 aVertexPosition;
+    attribute vec2 aTextureCoord;
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    uniform mat4 activeTextureMatrix;
+    uniform mat4 nextTextureMatrix;
+
+    varying vec3 vVertexPosition;
+    varying vec2 vTextureCoord;
+    varying vec2 vActiveTextureCoord;
+    varying vec2 vNextTextureCoord;
+
+    uniform float uTransitionTimer;
+    void main() {
+      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+
+      vTextureCoord = aTextureCoord;
+      vActiveTextureCoord = (activeTextureMatrix * vec4(aTextureCoord, 0.0, 1.0)).xy;
+      vNextTextureCoord = (nextTextureMatrix * vec4(aTextureCoord, 0.0, 1.0)).xy;
+
+      vVertexPosition = aVertexPosition;
+    }
+  </script>
+  <script id="fs-not-load" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec3 vVertexPosition;
+    varying vec2 vTextureCoord;
+    varying vec2 vActiveTextureCoord;
+    varying vec2 vNextTextureCoord;
+
+    uniform float uTransitionTimer;
+
+    uniform sampler2D activeTexture;
+    uniform sampler2D nextTexture;
+    uniform sampler2D displacement;
+    void main() {
+
+      vec4 displacementTexture = texture2D(displacement, vTextureCoord);
+      float displacementFactor = (cos(uTransitionTimer / (60.0 / 3.141592)) + 1.0) / 2.0;
+      float effectFactor = 1.0;
+      
+      vec2 firstDisplacementCoords = vec2(vActiveTextureCoord.x - (1.0 - displacementFactor) * (displacementTexture.r * effectFactor), vActiveTextureCoord.y);
+      vec2 secondDisplacementCoords = vec2(vNextTextureCoord.x + displacementFactor * (displacementTexture.r * effectFactor), vNextTextureCoord.y);
+      vec4 firstDistortedColor = texture2D(activeTexture, firstDisplacementCoords);
+      vec4 secondDistortedColor = texture2D(nextTexture, secondDisplacementCoords);
+      vec4 finalColor = mix(secondDistortedColor, firstDistortedColor, displacementFactor);
+
+      finalColor = vec4(finalColor.rgb * finalColor.a, finalColor.a);
+      gl_FragColor = finalColor;
+    }
+  </script>
+
 </body>
 </html>

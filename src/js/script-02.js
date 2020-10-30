@@ -11,15 +11,15 @@ class WebglSlides {
 		this.slidesState = {
 			activeTextureIndex: 1,
 			nextTextureIndex: null,
-			maxTextures: document.querySelectorAll("img").length - 1, // -1 to displacement
+			maxTextures: set.planeElement.querySelectorAll("img").length - 1, // -1 to displacement
 			navs: set.navs,
 
 			isChanging: false,
 			transitionTimer: 0,
 		}
 		this.params = {
-			vertexShader: vertex,
-			fragmentShader: fragment,
+			vertexShader: document.getElementById("vs")?.textContent || vertex,
+			fragmentShader: document.getElementById("fs")?.textContent || fragment,
 			uniforms: {
 				transitionTimer: {
 					name: "uTransitionTimer",
@@ -72,15 +72,13 @@ class WebglSlides {
 
 	update() {
 		this.multiTexturesPlane.onRender(() => {
-            if (this.slidesState.isChanging) {
-                // use damping to smoothen transition
-                this.slidesState.transitionTimer = (1 - 0.05) * this.slidesState.transitionTimer + 0.05 * 60;
+			if (this.slidesState.isChanging) {
+					this.slidesState.transitionTimer = (1 - 0.05) * this.slidesState.transitionTimer + 0.05 * 60;
 
-                // transition is over, pause previous video
-                if(this.slidesState.transitionTimer >= 59 && this.slidesState.transitionTimer !== 60) {
-                    this.slidesState.transitionTimer = 60;
-                }
-            }
+					if(this.slidesState.transitionTimer >= 59 && this.slidesState.transitionTimer !== 60) {
+							this.slidesState.transitionTimer = 60;
+					}
+			}
 
 			this.multiTexturesPlane.uniforms.transitionTimer.value = this.slidesState.transitionTimer;
 		});
@@ -154,6 +152,10 @@ class WebglSlides {
 		this.curtains.restoreContext();
 	}
 
+	// Not necesary, only for change Displacements Texture
+	removePlanes() {
+		this.curtains.dispose();
+	}
 }
 
 window.addEventListener("load", () => {
@@ -161,9 +163,35 @@ window.addEventListener("load", () => {
 	const canvas = wrapper.querySelector('.canvas')
 	const planeElement = wrapper.querySelector('.multi-textures')
 	const navs = wrapper.querySelectorAll('[data-goto]')
-	const slide = new WebglSlides({
+	let slide = new WebglSlides({
 		canvas,
 		planeElement,
 		navs
+	})
+
+	// Down, not necesary, only for change Displacements Texture
+	document.querySelector('.js-open-modal').addEventListener('click', () => {
+		document.body.classList.add('modal-active')
+	})
+	document.querySelector('.js-close-modal').addEventListener('click', () => {
+		document.body.classList.remove('modal-active')
+	})
+
+	const settings = document.querySelectorAll('[data-setting]');
+	settings.forEach(setting => {
+		setting.addEventListener('click', event => {
+			const target = event.target;
+			const path = target.getAttribute('src')
+			settings.forEach(setting => setting.classList.remove('active'))
+			target.classList.add('active')
+			document.querySelector('[data-sampler]').src = path
+
+			slide.removePlanes()
+			slide = new WebglSlides({
+				canvas,
+				planeElement,
+				navs
+			})
+		})
 	})
 });

@@ -18,8 +18,8 @@ class WebglSlides {
 			transitionTimer: 0,
 		}
 		this.params = {
-			vertexShader: vertex,
-			fragmentShader: fragment,
+			vertexShader: document.getElementById("vs")?.textContent || vertex,
+			fragmentShader: document.getElementById("fs")?.textContent || fragment,
 			uniforms: {
 				transitionTimer: {
 					name: "uTransitionTimer",
@@ -152,6 +152,7 @@ class WebglSlides {
 		this.curtains.restoreContext();
 	}
 
+	// Not necesary, only for change Displacements Texture
 	removePlanes() {
 		this.curtains.dispose();
 	}
@@ -169,6 +170,7 @@ window.addEventListener("load", () => {
 		navs
 	})
 
+	// Down, not necesary, only for change Displacements Texture
 	document.querySelector('.js-open-modal').addEventListener('click', () => {
     document.body.classList.add('modal-active')
   })
@@ -183,9 +185,8 @@ window.addEventListener("load", () => {
 			const path = target.getAttribute('src')
 			settings.forEach(setting => setting.classList.remove('active'))
 			target.classList.add('active')
-			console.log('path :>> ', path);
 			document.querySelector('[data-sampler]').src = path
-	
+
 			slide.removePlanes()
 			slide = new WebglSlides({
 				canvas,
